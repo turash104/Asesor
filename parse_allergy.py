@@ -16,16 +16,15 @@ import en_core_web_sm
 nlp = spacy.load("en")
 print(nlp)
 
-df_symptoms=pd.read_excel("sample_symptom.xlsx")
-symptoms=df_symptoms["text"].tolist()
-syms=df_symptoms["symptom"].tolist()
+df_allergies=pd.read_excel("sample_allergy.xlsx")
+allergies=df_allergies["text"].tolist()
+allers=df_allergies["allergy"].tolist()
 onset_list=[]
-ferq_list=[]
+status_list=[]
 severity_list=[]
 
-for i in range(len(symptoms)):
-    #print(symptoms[i])
-    u=symptoms[i].strip()
+for i in range(len(allergies)):
+    u=allergies[i].strip()
     doc = nlp(u)
     #print(doc)
     #print([(X.text, X.label_) for X in doc.ents])
@@ -57,7 +56,7 @@ for i in range(len(symptoms)):
         print(chunk.text, chunk.label_, chunk.root.text)
     '''
     #syms=[]
-    freqs=[]
+    statuses=[]
     onsets=[]
     severities=[]
 
@@ -77,57 +76,42 @@ for i in range(len(symptoms)):
     for ent in doc.ents:
         if ent.label_ == 'DATE':
             tex=ent.text.lower()
-            if any(sub in tex for sub in freq_indicators): freqs.append(tex)
+            if any(sub in tex for sub in freq_indicators): continue
             else: onsets.append(tex)
 
     for chunk in doc.noun_chunks:
-        print("text: " + chunk.text)
-        print("label: " + chunk.label_)
-        print("root: " + chunk.root.text)
+        #print("text: " + chunk.text)
+        #print("label: " + chunk.label_)
+        #print("root: " + chunk.root.text)
         if chunk.root.text == 'DATE':
             tex=chunk.text.lower()
-            if any(sub in tex for sub in freq_indicators): freqs.append(tex)
+            if any(sub in tex for sub in freq_indicators): continue
             else: onsets.append(tex)
     
     
-    parts=u.split()
-    possible=["every", "once", "twice", "thrice"]
-    for index, part in enumerate(parts):
-        if (part=="times" or part=="time") and index>0:
-            new_freq=parts[index-1]+" "+parts[index]
-            possible.append(new_freq)
+    statuses="active"
 
-            
-    possible_prefix="|".join(possible)
-    possible_prefix="("+possible_prefix+")"
-    m = re.findall(possible_prefix+'(.*?)(\\.|day|week|month|year)', u)
-    
-    if m!=None:
-        for m_elem in m:
-            t=m_elem[0]+m_elem[1]+m_elem[2]
-            freqs.append(t)
-    freqs=list(set(freqs))
     print(doc)
     print(severities)
     print(onsets)
-    print(freqs)
+    print(statuses)
 
     #symptoms=df_symptoms["text"].tolist()
     #syms=df_symptoms["symptom"].tolist()
     onset_list.append(onsets)
-    ferq_list.append(freqs)
+    status_list.append(statuses)
     severity_list.append(severities)
 
 df_parsed={
-    "text": symptoms,
-    "symtoms": syms,
+    "text": allergies,
+    "allergies": allers,
     "severity": severity_list,
     "onset": onset_list,
-    "frequency": ferq_list 
+    "status": status_list 
 }
 
 df_res=pd.DataFrame(df_parsed)
-df_res.to_csv("parsed_symptom.csv")
+df_res.to_csv("parsed_allergy.csv")
 
         
             

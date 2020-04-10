@@ -18,7 +18,10 @@ print(nlp)
 
 df_medications=pd.read_excel("sample_medication.xlsx")
 medication_list=df_medications["text"].tolist()
-
+medication_list_med=df_medications["medication"].tolist()
+dosage_list=[]
+timing_list=[]
+purpose_list=[]
 for i in range(len(medication_list)):
     u=medication_list[i].strip()
     doc = nlp(u)
@@ -153,6 +156,24 @@ for i in range(len(medication_list)):
     print(timings)
     print("dosages: ")
     print(dosages)
+
+    #df_medications=pd.read_excel("sample_medication.xlsx")
+    #medication_list=df_medications["text"].tolist()
+    #medication_list_med=df_medications["medication"].tolist()
+    dosage_list.append(dosages)
+    timing_list.append(timings)
+    purpose_list.append(purposes)
+
+dic_res={
+    "text":medication_list,
+    "medications": medication_list_med,
+    "purposes": purpose_list,
+    "dosages": dosage_list,
+    "timings": timing_list
+}
+
+df_res=pd.DataFrame(dic_res)
+df_res.to_csv('parsed_medication.csv')
     
     
         
